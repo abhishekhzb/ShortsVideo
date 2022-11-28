@@ -1,11 +1,7 @@
 package com.andorid.shortsvideo.model
 
 val reels = listOf(
-    Reel(
-        "https://player.vimeo.com/external/369156564.sd.mp4?s=cfbac673bce8e336fb24b6d841765a19a7ec5e65&profile_id=165&oauth2_token_id=57447761",
-        true,
-        "Ran with the trend, but made it cookies & cream version"
-    ),
+
     Reel(
         "https://user-images.githubusercontent.com/90382113/170885742-d82e3b59-e45a-4fcf-a851-fed58ff5a690.mp4",
         false,
