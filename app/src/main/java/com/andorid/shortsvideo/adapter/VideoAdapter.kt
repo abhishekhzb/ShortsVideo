@@ -1,5 +1,8 @@
 package com.malkinfo.shotsvideo.adapter
 
+import android.media.MediaPlayer
+import android.media.MediaPlayer.OnPreparedListener
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,10 +14,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.andorid.shortsvideo.R
 import com.andorid.shortsvideo.model.Reel
 
-class VideoAdapter(val mList :List<Reel>): RecyclerView.Adapter<VideoAdapter.MyViewHolder>() {
+class VideoAdapter(private val mReelLst :List<Reel>): RecyclerView.Adapter<VideoAdapter.MyViewHolder>() {
+
+    var visiblePosition: Int = 0
+
+    var tempVideoView: VideoView? = null
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-        holder.setdata(mList[position])
+        holder.setdata(mReelLst[position], position)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
@@ -23,9 +30,25 @@ class VideoAdapter(val mList :List<Reel>): RecyclerView.Adapter<VideoAdapter.MyV
     }
 
     override fun getItemCount(): Int {
-        return mList.size
+        return mReelLst.size
     }
 
+
+
+    override fun onViewAttachedToWindow(holder: MyViewHolder) {
+        super.onViewAttachedToWindow(holder)
+        Log.e("onViewAttachedToWindow","onViewAttachedToWindow")
+    }
+
+    override fun onViewDetachedFromWindow(holder: MyViewHolder) {
+        super.onViewDetachedFromWindow(holder)
+        Log.e("onViewDetachedFromWindow","onViewDetachedFromWindow")
+    }
+
+
+
+
+    // ViewHolder, inner class
     inner class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var videoView: VideoView
         var title: TextView
@@ -33,27 +56,42 @@ class VideoAdapter(val mList :List<Reel>): RecyclerView.Adapter<VideoAdapter.MyV
         var pbar: ProgressBar
         var fav :ImageView
         var isFav = false
-        fun setdata(obj: Reel) {
-            videoView.setVideoPath(obj.reelUrl)
-            title.setText(obj.title)
-           // desc.setText(obj.reelInfo.description)
-            videoView.setOnPreparedListener { mediaPlayer ->
-                pbar.visibility = View.GONE
-                mediaPlayer.start()
-            }
-            videoView.setOnCompletionListener { mediaPlayer -> mediaPlayer.start() }
-            fav.setOnClickListener {
-                if (!isFav){
-                    fav.setImageResource(R.drawable.ic_fill_favorite)
-                    isFav = true
-                }
-                else{
-                    fav.setImageResource(R.drawable.ic_favorite)
-                    isFav = false
-                }
 
-            }
+        fun startVideoFromTemp(videoV: VideoView) {
+            tempVideoView = videoV
+            tempVideoView?.start()
         }
+
+
+        fun setdata(reelData: Reel, position: Int) {
+            title.text = reelData.title
+
+            //video
+            videoView.setVideoPath(reelData.reelUrl)
+
+            if(visiblePosition == position && reelData.isMediaReady) {
+                startVideoFromTemp(videoView)
+            } else if(visiblePosition != position && reelData.isMediaReady){
+                videoView.pause()
+            }
+
+            videoView.setOnPreparedListener(object : OnPreparedListener{
+                override fun onPrepared(p0: MediaPlayer?) {
+                    pbar.visibility = View.GONE
+                    reelData.isMediaReady = true;
+                    if(visiblePosition == position) {
+                        startVideoFromTemp(videoView)
+                        reelData.isPlaying = true
+                    } else {
+                        reelData.isPlaying = false
+                    }
+                }
+            })
+
+//            videoView.setOnCompletionListener { mediaPlayer -> mediaPlayer.start() }
+
+        }
+
 
         init {
             videoView = itemView.findViewById<View>(R.id.videoView) as VideoView
