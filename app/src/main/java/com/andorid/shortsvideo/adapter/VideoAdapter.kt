@@ -2,6 +2,7 @@ package com.malkinfo.shotsvideo.adapter
 
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnTouchListener
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -10,6 +11,7 @@ import android.widget.VideoView
 import androidx.recyclerview.widget.RecyclerView
 import com.andorid.shortsvideo.R
 import com.andorid.shortsvideo.model.Reel
+
 
 class VideoAdapter(val mList :List<Reel>): RecyclerView.Adapter<VideoAdapter.MyViewHolder>() {
 
@@ -53,6 +55,17 @@ class VideoAdapter(val mList :List<Reel>): RecyclerView.Adapter<VideoAdapter.MyV
                 }
 
             }
+
+            // for play and pause
+            videoView.setOnTouchListener(OnTouchListener { view, motionEvent ->
+                if (videoView.isPlaying()) {
+                    videoView.pause()
+                    false
+                } else {
+                    videoView.start()
+                    false
+                }
+            })
         }
 
         init {
